@@ -1,0 +1,21 @@
+# TinyLink .htaccess Configuration
+# Enables clean URL routing for redirect functionality
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /TinyLink/
+
+    # Prevent direct access to hidden files
+    RewriteRule "^\." - [F]
+
+    # If request is not a file or directory, route to redirect.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([a-zA-Z0-9]+)$ redirect.php?code=$1 [QSA,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>

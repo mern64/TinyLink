@@ -1,0 +1,41 @@
+# Ignore system files
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.log
+
+# Database
+*.sql
+*.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Dependencies (if added in future)
+node_modules/
+vendor/
+
+# XAMPP specific
+xampp.log
