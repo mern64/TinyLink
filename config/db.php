@@ -8,7 +8,7 @@
 $host = 'localhost';
 $username = 'root';
 $password = '';
-$dbname = 'tinylink';
+$dbname = 'tinylink_enhanced';
 
 // Create connection
 $conn = new mysqli($host, $username, $password, $dbname);

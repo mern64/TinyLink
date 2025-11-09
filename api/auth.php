@@ -8,6 +8,11 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 require_once '../config/db.php';
 
@@ -190,33 +195,36 @@ class AuthAPI {
 }
 
 // ============ HANDLE REQUESTS ============
-$auth = new AuthAPI($conn);
-$action = isset($_GET['action']) ? $_GET['action'] : '';
-$method = $_SERVER['REQUEST_METHOD'];
+// Only handle requests if this file is called directly (not included)
+if (basename(__FILE__) === basename($_SERVER['PHP_SELF'])) {
+    $auth = new AuthAPI($conn);
+    $action = isset($_GET['action']) ? $_GET['action'] : '';
+    $method = $_SERVER['REQUEST_METHOD'];
 
-if ($method === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-if ($method === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    if ($action === 'register') {
-        $email = $data['email'] ?? '';
-        $password = $data['password'] ?? '';
-        $username = $data['username'] ?? '';
-        echo json_encode($auth->register($email, $password, $username));
-    } elseif ($action === 'login') {
-        $email = $data['email'] ?? '';
-        $password = $data['password'] ?? '';
-        echo json_encode($auth->login($email, $password));
-    } else {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Invalid action']);
+    if ($method === 'OPTIONS') {
+        http_response_code(200);
+        exit;
     }
-} else {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+
+    if ($method === 'POST') {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if ($action === 'register') {
+            $email = $data['email'] ?? '';
+            $password = $data['password'] ?? '';
+            $username = $data['username'] ?? '';
+            echo json_encode($auth->register($email, $password, $username));
+        } elseif ($action === 'login') {
+            $email = $data['email'] ?? '';
+            $password = $data['password'] ?? '';
+            echo json_encode($auth->login($email, $password));
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+        }
+    } else {
+        http_response_code(405);
+        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    }
 }
 ?>

@@ -5,8 +5,11 @@
  */
 
 header('Content-Type: application/json');
+// Allow requests from any origin during development. In production, restrict this to your domain.
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
+// Allow common headers for authenticated requests
+header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept');
 
 require_once '../config/db.php';
 require_once 'auth.php';
@@ -24,9 +27,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Get authorization token (optional for anonymous users)
-$headers = getallheaders();
-$token = isset($headers['Authorization']) ? str_replace('Bearer ', '', $headers['Authorization']) : '';
+$token = '';
 $user_id = null;
+
+// Safely get headers - getallheaders might not always be available
+if (function_exists('getallheaders')) {
+    $headers = getallheaders();
+    $token = isset($headers['Authorization']) ? str_replace('Bearer ', '', $headers['Authorization']) : '';
+} else {
+    // Fallback for environments without getallheaders
+    $token = isset($_SERVER['HTTP_AUTHORIZATION']) ? str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']) : '';
+}
 
 if (!empty($token)) {
     $user_data = AuthAPI::getUserFromToken($token);

@@ -8,10 +8,17 @@
     # Prevent direct access to hidden files
     RewriteRule "^\." - [F]
 
+    # Route /r/* requests to redirect.php with the short code
+    # This handles both /r/code and /r/code patterns
+    RewriteCond %{REQUEST_URI} ^/TinyLink/r/(.+)$
+    RewriteRule ^r/(.+)$ redirect.php?code=$1 [QSA,L]
+
+    # Also handle requests that don't start with a known file/directory
     # If request is not a file or directory, route to redirect.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^([a-zA-Z0-9]+)$ redirect.php?code=$1 [QSA,L]
+    RewriteCond %{REQUEST_URI} !^/TinyLink/(api|assets|config|index|login|dashboard|pricing|setup|redirect|r)
+    RewriteRule ^([a-zA-Z0-9_-]+)$ redirect.php?code=$1 [QSA,L]
 </IfModule>
 
 # Security headers

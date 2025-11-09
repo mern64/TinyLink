@@ -7,6 +7,8 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+// Allow common headers for authenticated requests
+header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept');
 
 require_once '../config/db.php';
 require_once 'auth.php';
@@ -60,8 +62,14 @@ if ($method === 'OPTIONS') {
 }
 
 // Get authorization token
-$headers = getallheaders();
-$token = isset($headers['Authorization']) ? str_replace('Bearer ', '', $headers['Authorization']) : '';
+$token = '';
+if (function_exists('getallheaders')) {
+    $headers = getallheaders();
+    $token = isset($headers['Authorization']) ? str_replace('Bearer ', '', $headers['Authorization']) : '';
+} else {
+    // Fallback for environments without getallheaders
+    $token = isset($_SERVER['HTTP_AUTHORIZATION']) ? str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']) : '';
+}
 
 if (empty($token)) {
     http_response_code(401);
