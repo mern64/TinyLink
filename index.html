@@ -362,6 +362,46 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Contact Form Section -->
+            <section class="contact-section" id="contact" style="padding: 80px 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); margin-top: 60px;">
+                <div class="container" style="max-width: 600px; margin: 0 auto;">
+                    <h2 style="text-align: center; margin-bottom: 10px; color: #2d3748;">Get in Touch</h2>
+                    <p style="text-align: center; color: #718096; margin-bottom: 30px;">Have a question? We'd love to hear from you.</p>
+                    
+                    <form id="contactForm" style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">Name</label>
+                            <input type="text" id="contactName" name="name" placeholder="Your name" required 
+                                style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">Email</label>
+                            <input type="email" id="contactEmail" name="email" placeholder="your.email@example.com" required 
+                                style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">Subject</label>
+                            <input type="text" id="contactSubject" name="subject" placeholder="What is this about?" required 
+                                style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">Message</label>
+                            <textarea id="contactMessage" name="message" placeholder="Your message..." rows="5" required 
+                                style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; box-sizing: border-box; font-family: inherit; resize: vertical;"></textarea>
+                        </div>
+
+                        <div id="contactStatus" style="margin-bottom: 15px; display: none; padding: 12px; border-radius: 6px; text-align: center;"></div>
+
+                        <button type="submit" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 16px; transition: transform 0.2s;">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -478,6 +518,93 @@
 
         function goDashboard() {
             window.location.href = '/TinyLink/dashboard.html';
+        }
+
+        // ============ CONTACT FORM HANDLING ============
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('contactName').value.trim();
+                const email = document.getElementById('contactEmail').value.trim();
+                const subject = document.getElementById('contactSubject').value.trim();
+                const message = document.getElementById('contactMessage').value.trim();
+                const statusDiv = document.getElementById('contactStatus');
+
+                // Basic client-side validation
+                if (!name || !email || !subject || !message) {
+                    showContactStatus('Please fill in all fields', 'error');
+                    return;
+                }
+
+                if (name.length < 2) {
+                    showContactStatus('Name must be at least 2 characters', 'error');
+                    return;
+                }
+
+                if (subject.length < 5) {
+                    showContactStatus('Subject must be at least 5 characters', 'error');
+                    return;
+                }
+
+                if (message.length < 10) {
+                    showContactStatus('Message must be at least 10 characters', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/TinyLink/api/contact.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            subject: subject,
+                            message: message
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showContactStatus('✓ ' + data.message, 'success');
+                        contactForm.reset();
+                        
+                        // Keep success message visible for 5 seconds
+                        setTimeout(() => {
+                            statusDiv.style.display = 'none';
+                        }, 5000);
+                    } else {
+                        if (data.errors && Array.isArray(data.errors)) {
+                            showContactStatus('✗ ' + data.errors.join(', '), 'error');
+                        } else {
+                            showContactStatus('✗ ' + (data.message || 'Failed to send message'), 'error');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Contact form error:', error);
+                    showContactStatus('✗ An error occurred. Please try again.', 'error');
+                }
+            });
+        }
+
+        function showContactStatus(message, type) {
+            const statusDiv = document.getElementById('contactStatus');
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                statusDiv.style.background = '#c6f6d5';
+                statusDiv.style.color = '#22543d';
+                statusDiv.style.border = '1px solid #9ae6b4';
+            } else if (type === 'error') {
+                statusDiv.style.background = '#fed7d7';
+                statusDiv.style.color = '#742a2a';
+                statusDiv.style.border = '1px solid #fc8181';
+            }
         }
     </script>
 </body>

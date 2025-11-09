@@ -338,7 +338,7 @@ curl -s -X GET 'http://localhost/TinyLink/api/analytics.php?action=dashboard' \
 ## 🎓 Learning Resources
 
 - **Tier System Logic:** See `api/shorten.php` lines 57-84
-- **Database Schema:** See `setup-enhanced.php` users table
+- **Database Schema:** See `setup.php` users table
 - **Authentication:** See `api/auth.php` JWT token generation
 - **Testing Docs:** See this file for comprehensive testing
 

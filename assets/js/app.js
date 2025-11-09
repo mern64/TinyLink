@@ -65,14 +65,14 @@ shortenForm.addEventListener('submit', async (e) => {
 if (window.location.protocol === 'file:') {
     document.addEventListener('DOMContentLoaded', () => {
         const message = 'The app was opened using file:// and browser requests to the PHP API are blocked.\n\n' +
-            'Please start your local server (XAMPP) and open this page at: http://localhost/TinyLink/index-enhanced.html\n\n' +
+            'Please start your local server (XAMPP) and open this page at: http://localhost/TinyLink/index.html\n\n' +
             'Example to start XAMPP on macOS:\nsudo /Applications/XAMPP/xamppfiles/xampp start';
         alert(message);
         // Optionally show message inline by replacing the form
         if (shortenForm) {
             shortenForm.innerHTML = '<div style="padding:20px;border:1px solid #faa;background:#fff6f6;color:#900">' +
                 '<strong>Local server required:</strong> This page must be served over <code>http://</code>. Open ' +
-                '<code>http://localhost/TinyLink/index-enhanced.html</code> after starting XAMPP.</div>';
+                '<code>http://localhost/TinyLink/index.html</code> after starting XAMPP.</div>';
         }
     });
 }

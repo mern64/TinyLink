@@ -35,7 +35,7 @@ if /Applications/XAMPP/bin/mysql -u root -e "USE tinylink_enhanced" > /dev/null 
     echo "   ✅ Database 'tinylink_enhanced' exists"
 else
     echo "   ❌ Database 'tinylink_enhanced' does not exist"
-    echo "      Create it by visiting: http://localhost/TinyLink/setup-enhanced.php"
+    echo "      Create it by visiting: http://localhost/TinyLink/setup.php"
     exit 1
 fi
 echo
@@ -47,7 +47,7 @@ if [ "$TABLES" -eq 4 ]; then
     echo "   ✅ All 4 tables exist (users, urls, analytics, tiers)"
 else
     echo "   ❌ Missing tables! Found $TABLES of 4"
-    echo "      Recreate by visiting: http://localhost/TinyLink/setup-enhanced.php"
+    echo "      Recreate by visiting: http://localhost/TinyLink/setup.php"
     exit 1
 fi
 echo
@@ -120,7 +120,7 @@ echo
 # Check 9: Frontend Files
 echo "9️⃣  Checking frontend files..."
 FRONTEND_FILES=(
-    "/Applications/XAMPP/xamppfiles/htdocs/TinyLink/index-enhanced.html"
+    "/Applications/XAMPP/xamppfiles/htdocs/TinyLink/index.html"
     "/Applications/XAMPP/xamppfiles/htdocs/TinyLink/login.html"
     "/Applications/XAMPP/xamppfiles/htdocs/TinyLink/dashboard.html"
 )
@@ -148,7 +148,7 @@ echo
 echo "🚀 You're ready to go!"
 echo
 echo "Next steps:"
-echo "  1. Open: http://localhost/TinyLink/index-enhanced.html"
+echo "  1. Open: http://localhost/TinyLink/index.html"
 echo "  2. Create a shortened URL"
 echo "  3. Register at: http://localhost/TinyLink/login.html"
 echo "  4. View dashboard: http://localhost/TinyLink/dashboard.html"

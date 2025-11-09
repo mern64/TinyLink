@@ -2,7 +2,7 @@
 /**
  * TinyLink Enhanced - Database Setup
  * Creates database and tables with authentication, analytics, and tier system
- * Run once: http://localhost/TinyLink/setup-enhanced.php
+ * Run once: http://localhost/TinyLink/setup.php
  */
 
 // Database connection parameters
@@ -140,6 +140,30 @@ try {
         $setupMessages[] = "✓ Table 'analytics' created successfully";
     } else {
         throw new Exception("Error creating analytics table: " . $conn->error);
+    }
+
+    // ============ CONTACT MESSAGES TABLE ============
+    $createContactSql = "
+        CREATE TABLE IF NOT EXISTS contact_messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            subject VARCHAR(200) NOT NULL,
+            message LONGTEXT NOT NULL,
+            ip_address VARCHAR(45),
+            status ENUM('new', 'read', 'replied', 'closed') DEFAULT 'new',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_email (email),
+            INDEX idx_status (status),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ";
+
+    if ($conn->query($createContactSql) === TRUE) {
+        $setupMessages[] = "✓ Table 'contact_messages' created successfully";
+    } else {
+        throw new Exception("Error creating contact_messages table: " . $conn->error);
     }
 
     $setupSuccess = true;
