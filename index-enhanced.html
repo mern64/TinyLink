@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyLink - URL Shortener with Analytics & QR Codes</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #2d3748;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c53030;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 0 15px;
+            border-left: 2px solid #e2e8f0;
+        }
+
+        .user-email {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .tier-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .hero-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 14px 30px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .cta-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION BAR -->
+    <nav class="nav-bar" id="navbar">
+        <div class="nav-content">
+            <div class="logo" style="font-size: 1.5rem; font-weight: 700; color: #667eea;">
+                🔗 TinyLink
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="/TinyLink/pricing.html">💰 Pricing</a>
+                <a href="#features">Features</a>
+                <a class="nav-btn" href="/TinyLink/login.html">Login</a>
+            </div>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <span class="user-email" id="userEmail"></span>
+                <span class="tier-badge" id="userTier"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- HERO SECTION -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2>Shorten URLs. Track Clicks. Generate QR Codes.</h2>
+                <p>TinyLink makes URL management simple with instant shortening, detailed analytics, and QR code generation.</p>
+                <div class="cta-group">
+                    <button class="cta-btn" id="dashboardBtn" style="display: none;" onclick="goDashboard()">Go to Dashboard</button>
+                    <button class="cta-btn" id="loginBtn" onclick="window.location.href='/TinyLink/login.html'">Get Started Free</button>
+                    <button class="cta-btn secondary" onclick="document.getElementById('shortener').scrollIntoView({ behavior: 'smooth' })">Try Now</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- URL Shortener Form -->
+            <section class="shortener-section" id="shortener">
+                <div class="card">
+                    <h2>Shorten Your URL</h2>
+                    <form id="shortenForm" class="form">
+                        <div class="form-group">
+                            <label for="urlInput">Enter Your Long URL</label>
+                            <input 
+                                type="url" 
+                                id="urlInput" 
+                                name="url" 
+                                placeholder="https://example.com/very/long/url" 
+                                required
+                            >
+                            <small>Paste any URL and we'll shorten it for you</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <span>Shorten URL</span>
+                        </button>
+                    </form>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="loading-state" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Creating your short link...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="errorState" class="error-state" style="display: none;">
+                        <p id="errorMessage"></p>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Try Again</button>
+                    </div>
+
+                    <!-- Success State -->
+                    <div id="successState" class="success-state" style="display: none;">
+                        <div class="success-content">
+                            <div class="success-icon">✓</div>
+                            <h3>Link Shortened Successfully!</h3>
+                            
+                            <div class="url-display">
+                                <div class="url-item">
+                                    <label>Original URL</label>
+                                    <p id="originalUrl" class="url-text"></p>
+                                </div>
+                                
+                                <div class="url-item">
+                                    <label>Short URL</label>
+                                    <div class="short-url-container">
+                                        <input 
+                                            type="text" 
+                                            id="shortUrl" 
+                                            class="url-input" 
+                                            readonly
+                                        >
+                                        <button type="button" class="btn btn-copy" onclick="copyToClipboard()">
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="qrCodeDiv" style="text-align: center; margin: 20px 0; display: none;">
+                                <p style="color: #718096; margin-bottom: 10px;">QR Code</p>
+                                <img id="qrCodeImg" src="" alt="QR Code" style="max-width: 200px; border: 2px solid #e2e8f0; border-radius: 8px; padding: 10px;">
+                            </div>
+
+                            <div class="button-group">
+                                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                    Shorten Another
+                                </button>
+                                <button type="button" class="btn btn-primary" id="dashboardLinkBtn" style="display: none;" onclick="goDashboard()">
+                                    View Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="features-section" id="features">
+                <h2>Why Choose TinyLink?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Instant Shortening</h3>
+                        <p>Generate short, unique codes instantly with our advanced Base62 algorithm</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Detailed Analytics</h3>
+                        <p>Track clicks, see geographic data, device types, and referrer information</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>QR Code Generation</h3>
+                        <p>Automatically generate QR codes for every short link you create</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <h3>Secure & Reliable</h3>
+                        <p>Database-backed with prepared statements and best security practices</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Custom Aliases</h3>
+                        <p>Create custom short codes instead of random ones for your branded links</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3>Tier System</h3>
+                        <p>Choose from Free, Pro, or Enterprise plans based on your needs</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Preview Section -->
+            <section class="pricing-preview" style="background: #f7fafc; padding: 40px 20px; border-radius: 12px; margin: 40px 0; text-align: center;">
+                <h2 style="color: #2d3748; margin-bottom: 20px;">Simple Pricing for Everyone</h2>
+                <p style="color: #718096; margin-bottom: 30px;">Choose the plan that fits your needs</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Free</h3>
+                        <div style="font-size: 2rem; font-weight: 700; color: #2d3748; margin: 15px 0;">$0</div>
+                        <p style="color: #718096; margin-bottom: 15px;">50 links • Basic analytics • QR codes</p>
+                        <button class="btn btn-secondary" onclick="window.location.href='/TinyLink/login.html'">Get Started</button>
+                    </div>
+
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 3px solid #667eea; transform: scale(1.05);">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 0.8rem; font-weight: 600;">POPULAR</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Pro</h3>
+                        <div style="font-size: 2rem; font-weight: 700; color: #2d3748; margin: 15px 0;">$9.99<span style="font-size: 0.8rem; color: #718096;">/mo</span></div>
+                        <p style="color: #718096; margin-bottom: 15px;">500 links • Advanced analytics • Custom domains</p>
+                        <button class="btn btn-primary" onclick="window.location.href='/TinyLink/login.html'">Upgrade to Pro</button>
+                    </div>
+
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">Enterprise</h3>
+                        <div style="font-size: 2rem; font-weight: 700; color: #2d3748; margin: 15px 0;">$49.99<span style="font-size: 0.8rem; color: #718096;">/mo</span></div>
+                        <p style="color: #718096; margin-bottom: 15px;">10K+ links • Real-time analytics • Teams</p>
+                        <button class="btn btn-secondary" onclick="window.location.href='/TinyLink/pricing.html'">View Plans</button>
+                    </div>
+                </div>
+                <a href="/TinyLink/pricing.html" style="color: #667eea; text-decoration: none; font-weight: 600;">View all features →</a>
+            </section>
+
+            <!-- How It Works Section -->
+            <section class="how-it-works">
+                <h2>How It Works</h2>
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Paste Your URL</h3>
+                        <p>Enter any long URL into our shortener</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Get Shortened Link</h3>
+                        <p>We generate a unique short code instantly</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Share & Track</h3>
+                        <p>Share the link and watch clicks roll in real-time</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3>Analyze Results</h3>
+                        <p>View detailed analytics and download QR codes</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        const API_BASE = '/TinyLink/api';
+
+        // Check if user is authenticated
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (token && user) {
+                const userData = JSON.parse(user);
+                document.getElementById('navLinks').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userEmail').textContent = userData.email;
+                document.getElementById('userTier').textContent = userData.tier.toUpperCase();
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('dashboardBtn').style.display = 'inline-block';
+                document.getElementById('dashboardLinkBtn').style.display = 'inline-block';
+            }
+        }
+
+        // Initialize on page load
+        checkAuth();
+
+        // Override shortenURL to include QR code
+        const originalShortenURL = window.shortenURL;
+        window.shortenURL = async function(event) {
+            if (event) event.preventDefault();
+
+            const url = document.getElementById('urlInput').value;
+            const token = localStorage.getItem('token');
+
+            if (!url) {
+                showError('Please enter a URL');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`${API_BASE}/shorten.php`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Display success state
+                    document.getElementById('shortenForm').style.display = 'none';
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('errorState').style.display = 'none';
+                    document.getElementById('successState').style.display = 'block';
+
+                    document.getElementById('originalUrl').textContent = data.original_url;
+                    document.getElementById('shortUrl').value = data.short_url;
+
+                    // Generate QR code
+                    if (data.url_id && token) {
+                        generateQRCode(data.url_id);
+                    } else {
+                        // For anonymous users, generate QR from URL directly
+                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.short_url)}`;
+                        document.getElementById('qrCodeDiv').style.display = 'block';
+                        document.getElementById('qrCodeImg').src = qrUrl;
+                    }
+                } else {
+                    showError(data.message || 'Failed to shorten URL');
+                }
+            } catch (error) {
+                showError('Error: ' + error.message);
+            }
+        };
+
+        async function generateQRCode(urlId) {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_BASE}/qrcode.php?action=generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ url_id: urlId, size: 200 })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('qrCodeDiv').style.display = 'block';
+                    document.getElementById('qrCodeImg').src = data.qr_code;
+                }
+            } catch (error) {
+                console.error('QR generation failed:', error);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            location.reload();
+        }
+
+        function goDashboard() {
+            window.location.href = '/TinyLink/dashboard.html';
+        }
+    </script>
+</body>
+</html>

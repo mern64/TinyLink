@@ -1,18 +1,27 @@
 <?php
 /**
- * Redirect Handler with Click Tracking
- * Looks up short code, increments click count, and redirects to original URL
- * TinyLink URL Shortener
+ * TinyLink - Redirect Handler with Click Tracking & Analytics
+ * Looks up short code, tracks click, and redirects to original URL
  */
 
 require_once 'config/db.php';
 
-// Get the short code from URL
-$short_code = isset($_GET['code']) ? trim($_GET['code']) : null;
+// Get the short code from URL (from URL path parameter)
+$request_uri = $_SERVER['REQUEST_URI'];
+$base_path = '/TinyLink/r/';
+
+// Extract short code from URL
+if (strpos($request_uri, $base_path) === 0) {
+    $short_code = substr($request_uri, strlen($base_path));
+    $short_code = trim($short_code, '/');
+    $short_code = explode('?', $short_code)[0]; // Remove query string
+} else {
+    $short_code = isset($_GET['code']) ? trim($_GET['code']) : null;
+}
 
 if (!$short_code) {
     // If no code provided, redirect to home
-    header('Location: index.php');
+    header('Location: /TinyLink/');
     exit;
 }
 
